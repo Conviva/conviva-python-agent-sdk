@@ -26,14 +26,6 @@ The SDK supports various environment variables for configuration. Here are the k
 
 ### Endpoint Configuration
 - `CONVIVA_AGW_DOMAIN`: Override default AGW domain (defaults to "agw.conviva.com")
-- `CONVIVA_ALLOW_TEST_ENDPOINTS`: Set to "true" to allow localhost/127.0.0.1 endpoints
-- `CONVIVA_TRACES_ENDPOINT`: Test mode traces endpoint (localhost only)
-- `CONVIVA_LOGS_ENDPOINT`: Test mode logs endpoint (localhost only)
-
-### OpenTelemetry Fallbacks
-- `OTEL_SERVICE_NAME`: Fallback service name if CONVIVA_SERVICE_NAME not set
-- `OTEL_RESOURCE_ATTRIBUTES`: Fallback resource attributes
-- `OTEL_PROPAGATORS`: Trace context propagators (defaults to "tracecontext,baggage")
 
 ### SDK Behavior
 - `CONVIVA_SDK_DISABLED`: Set to "true" to disable the SDK entirely
