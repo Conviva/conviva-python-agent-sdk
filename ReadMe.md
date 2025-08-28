@@ -35,6 +35,7 @@ The SDK supports various environment variables for configuration. Here are the k
 
 ## Python
 1) Install the wheel
+   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.0/conviva_agent_sdk-1.0.0-py3-none-any.whl and do pip install
 ```bash
 pip install ./conviva-agent-sdk-<version>-py3-none-any.whl
 ```
@@ -51,7 +52,7 @@ ConvivaAgentSDK.init(
     service_version="1.0.0",
 )
 
-# Flush and shutdown when needed
+# Flush and shutdown when needed,may be in on service shutdown
 ConvivaAgentSDK.flush(5000)
 ConvivaAgentSDK.shutdown(5000)
 ```
@@ -60,13 +61,11 @@ ConvivaAgentSDK.shutdown(5000)
 ```bash
 # Required
 export CONVIVA_CUSTOMER_KEY=<your_customer_key>
-
-# Optional - Service configuration
 export CONVIVA_SERVICE_NAME="my-ai-service"
 export CONVIVA_SERVICE_VERSION="2.1.0"
-export CONVIVA_RESOURCE_ATTRIBUTES="environment=production,team=ai-platform"
 
 # Optional - Custom headers
+export CONVIVA_RESOURCE_ATTRIBUTES="environment=production,team=ai-platform"
 export CONVIVA_HEADERS='{"X-API-Key": "your-api-key", "X-Environment": "prod"}'
 
 ```
