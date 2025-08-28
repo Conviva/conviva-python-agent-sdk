@@ -35,7 +35,7 @@ The SDK supports various environment variables for configuration. Here are the k
 
 ## Python
 1) Install the wheel
-   Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.0/conviva_agent_sdk-1.0.0-py3-none-any.whl
+   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.0/conviva_agent_sdk-1.0.0-py3-none-any.whl and do pip install
 ```bash
 pip install ./conviva-agent-sdk-<version>-py3-none-any.whl
 ```
