@@ -5,7 +5,7 @@ This guide shows how to enable telemetry for your AI agent using the Conviva Age
 ## Overview
 - The SDK sends telemetry to Conviva using the OTLP/HTTP protocol.
 - You must provide your Conviva customer key to activate the SDK.
-- Endpoints are computed automatically by the SDK; you normally don’t need to configure them.
+- Captures key telemetry from AI agents out-of-the-box (no extra wiring needed).
 
 ## Prerequisites
 - Your Conviva Customer Key (provided by Conviva).
@@ -17,7 +17,7 @@ The SDK supports various environment variables for configuration. Here are the k
 ### Required
 - `CONVIVA_AGW_DOMAIN` : "appgw.conviva.com"
 - `CONVIVA_CUSTOMER_KEY`: Your Conviva customer key (required for production endpoints)
-- `CONVIVA_SERVICE_NAME`: Override service name (defaults to "unknown_service:python") Ex:"chat-assistant-agent"
+- `CONVIVA_SERVICE_NAME`: Override service name (defaults to "unknown_service:python") Ex:"root-agent"
 - `CONVIVA_SERVICE_VERSION`: Set service version Ex:"1.0.0"
 
 ### Optional Configuration
@@ -49,7 +49,7 @@ import os
 ConvivaAgentSDK.init(
     customer_key=os.environ.get("CONVIVA_CUSTOMER_KEY"),
     service_name=os.environ.getenv("CONVIVA_SERVICE_NAME"),
-    service_version=os.environ.getenv("CONVIVA_SERVICE_VERSION"),
+    service_version=os.environ.getenv("CONVIVA_SERVICE_VERSION")
 )
 
 # Flush and shutdown when needed,may be in on service shutdown
@@ -60,7 +60,6 @@ ConvivaAgentSDK.shutdown(5000)
 - Call `ConvivaAgentSDK.init(...)` once when your process starts.
 - Provide a meaningful `service_name` so you can identify your app in Conviva.
 - Ensure your app flushes and shuts down the SDK before exit to avoid losing data.
-- Captures key telemetry from AI agents out-of-the-box (no extra wiring needed).
 
 ## Troubleshooting
 - If you do not see data, confirm `CONVIVA_CUSTOMER_KEY` is set in your environment and that your application can reach the Conviva endpoint.
