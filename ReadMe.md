@@ -24,12 +24,12 @@ The SDK supports various environment variables for configuration. Here are the k
 - `CONVIVA_RESOURCE_ATTRIBUTES`: CSV format key=value pairs for resource attributes
 
 ## Python
-1) Download the wheel file from the latest release
-   - https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.0/conviva_agent_sdk-1.0.0-py3-none-any.whl
+1) Download and install the wheel file
+   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.0/conviva_agent_sdk-1.0.0-py3-none-any.whl
    - Install it with pip
-```bash
-pip install ./conviva-agent-sdk-1.0.0-py3-none-any.whl
-```
+      ```bash
+      pip install ./conviva-agent-sdk-1.0.0-py3-none-any.whl
+      ```
 
 2) Configure Required environment variables
    ```python
