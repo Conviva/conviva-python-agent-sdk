@@ -51,7 +51,7 @@ ConvivaAgentSDK.init(
     service_version="1.0.0",
 )
 
-# Flush and shutdown when needed
+# Flush and shutdown when needed,may be in on service shutdown
 ConvivaAgentSDK.flush(5000)
 ConvivaAgentSDK.shutdown(5000)
 ```
