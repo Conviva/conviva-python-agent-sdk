@@ -80,13 +80,12 @@ Notes
 - No additional endpoint configuration is needed in normal operation.
 - The SDK uses a singleton pattern - only one instance can exist per process.
 
-### Tracing Context Configuration
-- `CONVIVA_TRACING_CONTEXT_KEYS`: Comma-separated list of context keys to copy to span attributes (defaults to "convID,client_id")
-- `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN`: Maximum length for tracing context values before truncation (defaults to "256")
-
 ## Tracing Context Configuration
 
 The SDK automatically copies tracing context to span attributes for better observability. You can control which keys are copied and how long values can be.
+
+- `CONVIVA_TRACING_CONTEXT_KEYS`: Comma-separated list of context keys to copy to span attributes (defaults to "convID,client_id")
+- `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN`: Maximum length for tracing context values before truncation (defaults to "256")
 
 ### Environment Variables
 
