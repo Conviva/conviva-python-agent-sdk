@@ -1,46 +1,149 @@
 # Conviva Python Agent SDK
 
-This guide shows how to enable telemetry for your AI agent using the Conviva Agent SDK. 
+This guide shows how to enable telemetry for your AI agent using the Conviva Agent SDK for Python. 
 
 ## Overview
 - The SDK sends telemetry to Conviva using the OTLP/HTTP protocol.
 - You must provide your Conviva customer key to activate the SDK.
-- Captures key telemetry from AI agents out-of-the-box (no extra wiring needed).
+- Endpoints are computed automatically by the SDK; you normally don’t need to configure them.
 
 ## Prerequisites
 - Your Conviva Customer Key (provided by Conviva).
-- Access to Conviva’s telemetry endpoints.
+- Internet access to Conviva’s telemetry endpoints.
 
 ## Environment Variables
+
 The SDK supports various environment variables for configuration. Here are the key ones:
 
 ### Required
-- `CONVIVA_AGW_DOMAIN` : "appgw.conviva.com"
 - `CONVIVA_CUSTOMER_KEY`: Your Conviva customer key (required for production endpoints)
-- `CONVIVA_SERVICE_NAME`: Override service name (defaults to "unknown_service:python") Ex:"root-agent"
-- `CONVIVA_SERVICE_VERSION`: Set service version Ex:"1.0.0"
+- `CONVIVA_SERVICE_NAME`: Override service name (defaults to "unknown_service:python")
+- `CONVIVA_SERVICE_VERSION`: Set service version
 
 ### Optional Configuration
 - `CONVIVA_RESOURCE_ATTRIBUTES`: CSV format key=value pairs for resource attributes
 
-## Integration Guidelines
-1) Download and install the wheel file
-   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.0/conviva_agent_sdk-1.0.0-py3-none-any.whl
-   - Install it with pip
-      ```bash
-      pip install ./conviva-agent-sdk-1.0.0-py3-none-any.whl
-      ```
+### Endpoint Configuration
+- `CONVIVA_AGW_DOMAIN`: Override default AGW domain (defaults to "agw.conviva.com")
 
-2) Configure Required environment variables
-   ```python
-   export CONVIVA_AGW_DOMAIN="appgw.conviva.com"
-   export CONVIVA_CUSTOMER_KEY=<your_customer_key>
-   export CONVIVA_SERVICE_NAME="my-ai-service"
-   export CONVIVA_SERVICE_VERSION="1.0.0"
-   #Optional - Custom headers
-   export CONVIVA_RESOURCE_ATTRIBUTES="environment=production,team=ai-platform"
-   ```
-3) Initialize early in your application
+### SDK Behavior
+- `CONVIVA_SDK_DISABLED`: Set to "true" to disable the SDK entirely
+- `CONVIVA_AUTO_INCLUDE`: CSV list of instruments to include
+- `CONVIVA_AUTO_EXCLUDE`: CSV list of instruments to exclude
+- `CONVIVA_TIMEOUT_MS`: Request timeout in milliseconds (defaults to 10000)
+
+### Tracing Context Configuration
+- `CONVIVA_TRACING_CONTEXT_KEYS`: Comma-separated list of context keys to copy to span attributes (defaults to "convID,client_id")
+- `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN`: Maximum length for tracing context values before truncation (defaults to "256")
+
+### Logging Configuration
+- `CONVIVA_LOG_LEVEL`: Set the SDK's log level (defaults to "INFO")
+
+
+
+## Tracing Context Configuration
+
+The SDK automatically copies tracing context to span attributes for better observability. You can control which keys are copied and how long values can be.
+
+### Environment Variables
+
+```bash
+# Control which baggage keys are copied to span attributes
+export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request_id"
+
+# Set maximum length for values before truncation
+export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
+```
+
+### How It Works
+
+1. **Key Filtering**: Only baggage keys listed in `CONVIVA_TRACING_CONTEXT_KEYS` are copied to span attributes
+2. **Case Insensitive**: Key matching is case-insensitive (e.g., "convID" matches "convid", "CONVID", etc.)
+3. **Value Truncation**: Values longer than `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN` are truncated with "…" suffix
+4. **Namespace**: Copied attributes are prefixed with a namespace (default: "c3.")
+
+### Examples
+
+```python
+# Set tracing context with multiple keys
+with ConvivaAgentSDK.tracing_context({
+    "convID": "abc123",
+    "user_id": "user456", 
+    "session_id": "sess789",
+    "request_id": "req001"
+}):
+    # Only keys in CONVIVA_TRACING_CONTEXT_KEYS will be copied to spans
+    # as attributes like: c3.convID, c3.user_id, etc.
+    pass
+```
+
+### Configuration Examples
+
+```bash
+
+# Comprehensive configuration for microservices
+export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request_id,operation_type,service_name"
+export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
+
+```
+## Log Level Control
+
+The SDK provides flexible logging control through environment variables and programmatic APIs.
+
+### Environment Variable
+
+Set the log level using the `CONVIVA_LOG_LEVEL` environment variable:
+
+```bash
+# Available log levels
+export CONVIVA_LOG_LEVEL="DEBUG"    # Most verbose
+export CONVIVA_LOG_LEVEL="INFO"     # Default level
+export CONVIVA_LOG_LEVEL="WARNING"  # Warnings and errors only
+export CONVIVA_LOG_LEVEL="ERROR"    # Errors only
+export CONVIVA_LOG_LEVEL="CRITICAL" # Critical errors only
+export CONVIVA_LOG_LEVEL="OFF"      # Disable all SDK logging
+```
+
+### Programmatic Control
+
+You can also control logging programmatically:
+
+```python
+from conviva_agent_sdk.logging_config import set_log_level, suppress_logs, enable_logs
+
+# Set specific log level
+set_log_level("DEBUG")  # String
+set_log_level(logging.INFO)  # Or use logging constants
+
+# Suppress all SDK logs
+suppress_logs()
+
+# Re-enable logs at specific level
+enable_logs("WARNING")
+```
+
+### Log Level Examples
+
+```python
+# Debug mode - see all SDK internal operations
+import os
+os.environ["CONVIVA_LOG_LEVEL"] = "DEBUG"
+
+# Production mode - only errors and warnings
+os.environ["CONVIVA_LOG_LEVEL"] = "WARNING"
+
+# Completely silent - no SDK logs
+os.environ["CONVIVA_LOG_LEVEL"] = "OFF"
+```
+
+## Python
+1) Install the wheel
+   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.3/conviva_agent_sdk-1.0.3-py3-none-any.whl and do pip install
+```bash
+pip install ./conviva-agent-sdk-<version>-py3-none-any.whl
+```
+
+2) Initialize early in your application
 ```python
 from conviva_agent_sdk import ConvivaAgentSDK
 import os
@@ -48,18 +151,118 @@ import os
 # Initialize the SDK
 ConvivaAgentSDK.init(
     customer_key=os.environ.get("CONVIVA_CUSTOMER_KEY"),
-    service_name=os.environ.getenv("CONVIVA_SERVICE_NAME"),
-    service_version=os.environ.getenv("CONVIVA_SERVICE_VERSION")
+    service_name="my-service",
+    service_version="1.0.0",
 )
 
 # Flush and shutdown when needed,may be in on service shutdown
 ConvivaAgentSDK.flush(5000)
 ConvivaAgentSDK.shutdown(5000)
 ```
+
+3) Environment variable examples
+```bash
+# Required
+export CONVIVA_CUSTOMER_KEY=<your_customer_key>
+export CONVIVA_SERVICE_NAME="my-ai-service"
+export CONVIVA_SERVICE_VERSION="2.1.0"
+
+# Optional - Custom headers
+export CONVIVA_RESOURCE_ATTRIBUTES="environment=production,team=ai-platform"
+
+# Optional - Logging
+export CONVIVA_LOG_LEVEL="INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL, OFF
+
+# Optional - Tracing Context
+export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id"
+export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
+
+```
+
+Notes
+- By default, telemetry is sent to: `https://<CONVIVA_CUSTOMER_KEY>.agw.conviva.com/v1/{traces|logs}`.
+- No additional endpoint configuration is needed in normal operation.
+- The SDK uses a singleton pattern - only one instance can exist per process.
+
+## Tracing Context Management
+
+The SDK provides functions to manage tracing context and baggage for distributed tracing across your application.
+
+### Context Manager: `tracing_context`
+
+Use `tracing_context` as a context manager to automatically attach and detach tracing context:
+
+```python
+from conviva_agent_sdk import ConvivaAgentSDK
+
+# Using context manager (recommended)
+with ConvivaAgentSDK.tracing_context({"convID": "<placeholder-unique-chat-id>"}):
+    # Your code here - tracing context is automatically available
+    # All spans created within this block will have the trace context attached
+    pass
+# Context is automatically cleaned up when exiting the block
+```
+
+### Manual Context Management: `set_tracing_context` and `detach_tracing_context`
+
+For more control, you can manually manage tracing context:
+
+```python
+from conviva_agent_sdk import ConvivaAgentSDK
+
+# Set tracing context and get a token
+token = ConvivaAgentSDK.set_tracing_context({
+    "convID": "ZfhAUaOrnBIdCO4-nz5p2"
+})
+
+# Your code here - tracing context is available
+# All spans created will have the baggage attached
+
+# Clean up when done
+ConvivaAgentSDK.detach_tracing_context(token)
+```
+
+### Use Cases
+
+- **Conversation Tracking**: Attach conversation IDs to trace user interactions across multiple requests
+- **User Context**: Include user IDs, session IDs, or other identifying information
+- **Request Correlation**: Link related operations with custom identifiers
+- **Custom Metadata**: Add any key-value pairs that should be propagated with your traces
+
+### Example: FastAPI Middleware
+
+```python
+from fastapi import FastAPI, Request
+from conviva_agent_sdk import ConvivaAgentSDK
+
+app = FastAPI()
+
+@app.middleware("http")
+async def add_tracing_context(request: Request, call_next):
+    # Extract tracing context from headers
+    tracing_dict = {
+        "convID": request.headers.get("X-Conversation-ID"),
+        "session_id": request.headers.get("X-Session-ID"),
+        "user_id": request.headers.get("X-User-ID")
+    }
+    
+    # Filter out None values
+    tracing_dict = {k: v for k, v in tracing_dict.items() if v is not None}
+    
+    # Apply tracing context for the entire request
+    with ConvivaAgentSDK.tracing_context(tracing_dict):
+        response = await call_next(request)
+    
+    return response
+```
+
 ## Best Practices
 - Call `ConvivaAgentSDK.init(...)` once when your process starts.
 - Provide a meaningful `service_name` so you can identify your app in Conviva.
 - Ensure your app flushes and shuts down the SDK before exit to avoid losing data.
+- The SDK is thread-safe and can be called from multiple threads.
+- Use `tracing_context` context manager for automatic cleanup when possible.
+- Always call `detach_tracing_context` when using manual context management to prevent memory leaks.
 
 ## Troubleshooting
 - If you do not see data, confirm `CONVIVA_CUSTOMER_KEY` is set in your environment and that your application can reach the Conviva endpoint.
