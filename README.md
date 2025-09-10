@@ -84,11 +84,6 @@ Notes
 - `CONVIVA_TRACING_CONTEXT_KEYS`: Comma-separated list of context keys to copy to span attributes (defaults to "convID,client_id")
 - `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN`: Maximum length for tracing context values before truncation (defaults to "256")
 
-### Logging Configuration
-- `CONVIVA_LOG_LEVEL`: Set the SDK's log level (defaults to "INFO")
-
-
-
 ## Tracing Context Configuration
 
 The SDK automatically copies tracing context to span attributes for better observability. You can control which keys are copied and how long values can be.
@@ -132,56 +127,6 @@ with ConvivaAgentSDK.tracing_context({
 # Comprehensive configuration for microservices
 export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request_id,operation_type,service_name"
 export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
-
-```
-## Log Level Control
-
-The SDK provides flexible logging control through environment variables and programmatic APIs.
-
-### Environment Variable
-
-Set the log level using the `CONVIVA_LOG_LEVEL` environment variable:
-
-```bash
-# Available log levels
-export CONVIVA_LOG_LEVEL="DEBUG"    # Most verbose
-export CONVIVA_LOG_LEVEL="INFO"     # Default level
-export CONVIVA_LOG_LEVEL="WARNING"  # Warnings and errors only
-export CONVIVA_LOG_LEVEL="ERROR"    # Errors only
-export CONVIVA_LOG_LEVEL="CRITICAL" # Critical errors only
-export CONVIVA_LOG_LEVEL="OFF"      # Disable all SDK logging
-```
-
-### Programmatic Control
-
-You can also control logging programmatically:
-
-```python
-from conviva_agent_sdk.logging_config import set_log_level, suppress_logs, enable_logs
-
-# Set specific log level
-set_log_level("DEBUG")  # String
-set_log_level(logging.INFO)  # Or use logging constants
-
-# Suppress all SDK logs
-suppress_logs()
-
-# Re-enable logs at specific level
-enable_logs("WARNING")
-```
-
-### Log Level Examples
-
-```python
-# Debug mode - see all SDK internal operations
-import os
-os.environ["CONVIVA_LOG_LEVEL"] = "DEBUG"
-
-# Production mode - only errors and warnings
-os.environ["CONVIVA_LOG_LEVEL"] = "WARNING"
-
-# Completely silent - no SDK logs
-os.environ["CONVIVA_LOG_LEVEL"] = "OFF"
 ```
 
 ## Tracing Context Management
