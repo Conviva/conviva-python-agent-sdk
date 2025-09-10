@@ -32,6 +32,54 @@ The SDK supports various environment variables for configuration. Here are the k
 - `CONVIVA_AUTO_EXCLUDE`: CSV list of instruments to exclude
 - `CONVIVA_TIMEOUT_MS`: Request timeout in milliseconds (defaults to 10000)
 
+## Integration Guidelines
+1) Install the wheel
+   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.3/conviva_agent_sdk-1.0.3-py3-none-any.whl and do pip install
+```bash
+pip install ./conviva-agent-sdk-<version>-py3-none-any.whl
+```
+
+2) Initialize early in your application
+```python
+from conviva_agent_sdk import ConvivaAgentSDK
+import os
+
+# Initialize the SDK
+ConvivaAgentSDK.init(
+    customer_key=os.environ.get("CONVIVA_CUSTOMER_KEY"),
+    service_name="my-service",
+    service_version="1.0.0",
+)
+
+# Flush and shutdown when needed,may be in on service shutdown
+ConvivaAgentSDK.flush(5000)
+ConvivaAgentSDK.shutdown(5000)
+```
+
+3) Environment variable examples
+```bash
+# Required
+export CONVIVA_CUSTOMER_KEY=<your_customer_key>
+export CONVIVA_SERVICE_NAME="my-ai-service"
+export CONVIVA_SERVICE_VERSION="2.1.0"
+
+# Optional - Custom headers
+export CONVIVA_RESOURCE_ATTRIBUTES="environment=production,team=ai-platform"
+
+# Optional - Logging
+export CONVIVA_LOG_LEVEL="INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL, OFF
+
+# Optional - Tracing Context
+export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id"
+export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
+
+```
+
+Notes
+- By default, telemetry is sent to: `https://<CONVIVA_CUSTOMER_KEY>.agw.conviva.com/v1/{traces|logs}`.
+- No additional endpoint configuration is needed in normal operation.
+- The SDK uses a singleton pattern - only one instance can exist per process.
+
 ### Tracing Context Configuration
 - `CONVIVA_TRACING_CONTEXT_KEYS`: Comma-separated list of context keys to copy to span attributes (defaults to "convID,client_id")
 - `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN`: Maximum length for tracing context values before truncation (defaults to "256")
@@ -135,54 +183,6 @@ os.environ["CONVIVA_LOG_LEVEL"] = "WARNING"
 # Completely silent - no SDK logs
 os.environ["CONVIVA_LOG_LEVEL"] = "OFF"
 ```
-
-## Python
-1) Install the wheel
-   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.3/conviva_agent_sdk-1.0.3-py3-none-any.whl and do pip install
-```bash
-pip install ./conviva-agent-sdk-<version>-py3-none-any.whl
-```
-
-2) Initialize early in your application
-```python
-from conviva_agent_sdk import ConvivaAgentSDK
-import os
-
-# Initialize the SDK
-ConvivaAgentSDK.init(
-    customer_key=os.environ.get("CONVIVA_CUSTOMER_KEY"),
-    service_name="my-service",
-    service_version="1.0.0",
-)
-
-# Flush and shutdown when needed,may be in on service shutdown
-ConvivaAgentSDK.flush(5000)
-ConvivaAgentSDK.shutdown(5000)
-```
-
-3) Environment variable examples
-```bash
-# Required
-export CONVIVA_CUSTOMER_KEY=<your_customer_key>
-export CONVIVA_SERVICE_NAME="my-ai-service"
-export CONVIVA_SERVICE_VERSION="2.1.0"
-
-# Optional - Custom headers
-export CONVIVA_RESOURCE_ATTRIBUTES="environment=production,team=ai-platform"
-
-# Optional - Logging
-export CONVIVA_LOG_LEVEL="INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL, OFF
-
-# Optional - Tracing Context
-export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id"
-export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
-
-```
-
-Notes
-- By default, telemetry is sent to: `https://<CONVIVA_CUSTOMER_KEY>.agw.conviva.com/v1/{traces|logs}`.
-- No additional endpoint configuration is needed in normal operation.
-- The SDK uses a singleton pattern - only one instance can exist per process.
 
 ## Tracing Context Management
 
