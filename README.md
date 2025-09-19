@@ -185,9 +185,10 @@ export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request
 export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
 ```
 
-## Tracing Context Management
+<details>
+<summary><h2>Tracing Context Management(Optional)</h2></summary>
 
-The SDK provides functions to manage tracing context and baggage for distributed tracing across your application.
+The SDK provides methods to manage tracing context and baggage for distributed tracing across your application if trace context propagation does not propagate across all services.
 
 ### Context Manager: `tracing_context`
 
@@ -258,6 +259,8 @@ async def add_tracing_context(request: Request, call_next):
     return response
 ```
 </details>
+</details>
+
 
 ## Best Practices
 - Call `ConvivaAgentSDK.init(...)` once when your process starts.
