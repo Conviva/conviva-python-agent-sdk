@@ -32,111 +32,7 @@ The SDK supports various environment variables for configuration. Here are the k
 - `CONVIVA_AUTO_EXCLUDE`: CSV list of instruments to exclude
 - `CONVIVA_TIMEOUT_MS`: Request timeout in milliseconds (defaults to 10000)
 
-### Tracing Context Configuration
-- `CONVIVA_TRACING_CONTEXT_KEYS`: Comma-separated list of context keys to copy to span attributes (defaults to "convID,client_id")
-- `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN`: Maximum length for tracing context values before truncation (defaults to "256")
-
-### Logging Configuration
-- `CONVIVA_LOG_LEVEL`: Set the SDK's log level (defaults to "INFO")
-
-
-
-## Tracing Context Configuration
-
-The SDK automatically copies tracing context to span attributes for better observability. You can control which keys are copied and how long values can be.
-
-### Environment Variables
-
-```bash
-# Control which baggage keys are copied to span attributes
-export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request_id"
-
-# Set maximum length for values before truncation
-export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
-```
-
-### How It Works
-
-1. **Key Filtering**: Only baggage keys listed in `CONVIVA_TRACING_CONTEXT_KEYS` are copied to span attributes
-2. **Case Insensitive**: Key matching is case-insensitive (e.g., "convID" matches "convid", "CONVID", etc.)
-3. **Value Truncation**: Values longer than `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN` are truncated with "…" suffix
-4. **Namespace**: Copied attributes are prefixed with a namespace (default: "c3.")
-
-### Examples
-
-```python
-# Set tracing context with multiple keys
-with ConvivaAgentSDK.tracing_context({
-    "convID": "abc123",
-    "user_id": "user456", 
-    "session_id": "sess789",
-    "request_id": "req001"
-}):
-    # Only keys in CONVIVA_TRACING_CONTEXT_KEYS will be copied to spans
-    # as attributes like: c3.convID, c3.user_id, etc.
-    pass
-```
-
-### Configuration Examples
-
-```bash
-
-# Comprehensive configuration for microservices
-export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request_id,operation_type,service_name"
-export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
-
-```
-## Log Level Control
-
-The SDK provides flexible logging control through environment variables and programmatic APIs.
-
-### Environment Variable
-
-Set the log level using the `CONVIVA_LOG_LEVEL` environment variable:
-
-```bash
-# Available log levels
-export CONVIVA_LOG_LEVEL="DEBUG"    # Most verbose
-export CONVIVA_LOG_LEVEL="INFO"     # Default level
-export CONVIVA_LOG_LEVEL="WARNING"  # Warnings and errors only
-export CONVIVA_LOG_LEVEL="ERROR"    # Errors only
-export CONVIVA_LOG_LEVEL="CRITICAL" # Critical errors only
-export CONVIVA_LOG_LEVEL="OFF"      # Disable all SDK logging
-```
-
-### Programmatic Control
-
-You can also control logging programmatically:
-
-```python
-from conviva_agent_sdk.logging_config import set_log_level, suppress_logs, enable_logs
-
-# Set specific log level
-set_log_level("DEBUG")  # String
-set_log_level(logging.INFO)  # Or use logging constants
-
-# Suppress all SDK logs
-suppress_logs()
-
-# Re-enable logs at specific level
-enable_logs("WARNING")
-```
-
-### Log Level Examples
-
-```python
-# Debug mode - see all SDK internal operations
-import os
-os.environ["CONVIVA_LOG_LEVEL"] = "DEBUG"
-
-# Production mode - only errors and warnings
-os.environ["CONVIVA_LOG_LEVEL"] = "WARNING"
-
-# Completely silent - no SDK logs
-os.environ["CONVIVA_LOG_LEVEL"] = "OFF"
-```
-
-## Python
+## Integration Guidelines
 1) Install the wheel
    - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.4/conviva_agent_sdk-1.0.4-py3-none-any.whl and do pip install
 ```bash
@@ -183,6 +79,54 @@ Notes
 - By default, telemetry is sent to: `https://<CONVIVA_CUSTOMER_KEY>.agw.conviva.com/v1/{traces|logs}`.
 - No additional endpoint configuration is needed in normal operation.
 - The SDK uses a singleton pattern - only one instance can exist per process.
+
+## Tracing Context Configuration
+
+The SDK automatically copies tracing context to span attributes for better observability. You can control which keys are copied and how long values can be.
+
+- `CONVIVA_TRACING_CONTEXT_KEYS`: Comma-separated list of context keys to copy to span attributes (defaults to "convID,client_id")
+- `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN`: Maximum length for tracing context values before truncation (defaults to "256")
+
+### Environment Variables
+
+```bash
+# Control which baggage keys are copied to span attributes
+export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request_id"
+
+# Set maximum length for values before truncation
+export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
+```
+
+### How It Works
+
+1. **Key Filtering**: Only baggage keys listed in `CONVIVA_TRACING_CONTEXT_KEYS` are copied to span attributes
+2. **Case Insensitive**: Key matching is case-insensitive (e.g., "convID" matches "convid", "CONVID", etc.)
+3. **Value Truncation**: Values longer than `CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN` are truncated with "…" suffix
+4. **Namespace**: Copied attributes are prefixed with a namespace (default: "c3.")
+
+### Examples
+
+```python
+# Set tracing context with multiple keys
+with ConvivaAgentSDK.tracing_context({
+    "convID": "abc123",
+    "user_id": "user456", 
+    "session_id": "sess789",
+    "request_id": "req001"
+}):
+    # Only keys in CONVIVA_TRACING_CONTEXT_KEYS will be copied to spans
+    # as attributes like: c3.convID, c3.user_id, etc.
+    pass
+```
+
+### Configuration Examples
+
+```bash
+
+# Comprehensive configuration for microservices
+export CONVIVA_TRACING_CONTEXT_KEYS="convID,client_id,user_id,session_id,request_id,operation_type,service_name"
+export CONVIVA_TRACING_CONTEXT_MAX_VALUE_LEN="2048"
+```
 
 ## Tracing Context Management
 
