@@ -138,7 +138,7 @@ os.environ["CONVIVA_LOG_LEVEL"] = "OFF"
 
 ## Python
 1) Install the wheel
-   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.3/conviva_agent_sdk-1.0.3-py3-none-any.whl and do pip install
+   - Download the wheel file from https://github.com/Conviva/conviva-python-agent-sdk/releases/download/v1.0.4/conviva_agent_sdk-1.0.4-py3-none-any.whl and do pip install
 ```bash
 pip install ./conviva-agent-sdk-<version>-py3-none-any.whl
 ```
