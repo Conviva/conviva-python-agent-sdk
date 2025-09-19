@@ -80,6 +80,63 @@ Notes
 - No additional endpoint configuration is needed in normal operation.
 - The SDK uses a singleton pattern - only one instance can exist per process.
 
+<details>
+<summary><h3>Fast API Integration Example</h3></summary>
+
+```python
+from fastapi import FastAPI, Request
+from conviva_agent_sdk import ConvivaAgentSDK
+import os
+
+app = FastAPI()
+
+# ----------------------------
+# Startup / Shutdown lifecycle
+# ----------------------------
+
+@app.on_event("startup")
+async def startup_event():
+    ConvivaAgentSDK.init(
+        customer_key=os.environ["CONVIVA_CUSTOMER_KEY"],
+        service_name=os.environ.get("CONVIVA_SERVICE_NAME", "my-ai-service"),
+        service_version=os.environ.get("CONVIVA_SERVICE_VERSION", "1.0.0"),
+    )
+    print("✅ ConvivaAgentSDK initialized")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # Flush pending events and shutdown gracefully
+    print("🛑 Shutting down ConvivaAgentSDK...")
+    ConvivaAgentSDK.flush(5000)
+    ConvivaAgentSDK.shutdown(5000)
+
+# ----------------------------
+# Middleware for tracing context
+# ----------------------------
+
+@app.middleware("http")
+async def conviva_middleware(request: Request, call_next):
+    tracing_context = {
+        "convID": request.headers.get("X-Conviva-ConvID"),
+        "client_id": request.headers.get("X-Client-ID"),
+        "user_id": request.headers.get("X-User-ID"),
+        "session_id": request.headers.get("X-Session-ID"),
+    }
+
+    with ConvivaAgentSDK.tracing_context(tracing_context):
+        response = await call_next(request)
+    return response
+
+# ----------------------------
+# Routes
+# ----------------------------
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+```
+</details>
+
 ## Tracing Context Configuration
 
 The SDK automatically copies tracing context to span attributes for better observability. You can control which keys are copied and how long values can be.
@@ -173,7 +230,8 @@ ConvivaAgentSDK.detach_tracing_context(token)
 - **Request Correlation**: Link related operations with custom identifiers
 - **Custom Metadata**: Add any key-value pairs that should be propagated with your traces
 
-### Example: FastAPI Middleware
+<details>
+<summary><h3>Example: FastAPI Middleware</h3></summary>
 
 ```python
 from fastapi import FastAPI, Request
@@ -199,6 +257,7 @@ async def add_tracing_context(request: Request, call_next):
     
     return response
 ```
+</details>
 
 ## Best Practices
 - Call `ConvivaAgentSDK.init(...)` once when your process starts.
